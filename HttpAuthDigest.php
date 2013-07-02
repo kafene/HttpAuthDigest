@@ -31,9 +31,13 @@ For more information, please refer to <http://unlicense.org/>
 */
 
 class HttpAuthDigest {
+    # Required elements in the parsed digest array.
+    protected $required = [
+        'algorithm', 'realm', 'uri', 'username', 'nonce',
+        'cnonce', 'opaque', 'qop', 'nc', 'response'
+    ];
     protected $ip = ''; # @var String
     protected $db = null; # @var PDO
-    protected $required = []; # @var array
     protected $users = []; # @var Array
     protected $realm = ''; # @var String
     protected $timeout = 0; # @var Integer
@@ -76,22 +80,15 @@ class HttpAuthDigest {
             : true;
 
         # Add any users if specified.
-        $this->users = [];
         if(isset($options['users'])) {
-            $a1 = isset($options['password_a1'])
+            $password_a1 = isset($options['password_a1'])
                 ? (bool) $options['password_a1']
                 : false;
             foreach($options['users'] as $user => $password) {
-                $this->addUser($user, $password, $a1);
+                $this->addUser($user, $password, $password_a1);
             }
         }
 
-        # Set up required keys from the parsed digest.
-        $this->required = $required = [
-            'algorithm', 'realm', 'uri', 'username', 'nonce',
-            'cnonce', 'opaque', 'qop', 'nc', 'response'
-        ];
-        
         # Set up remote user IP.
         $this->ip = sprintf('%u', ip2long(getenv('REMOTE_ADDR')));
 
@@ -105,11 +102,11 @@ class HttpAuthDigest {
      *
      * @param string $user Username
      * @param string $password Password or A1 value
-     * @param boolean $password_as_a1 If the password is a pre-calculated A1.
+     * @param boolean $password_a1 If the password is a pre-calculated A1.
      * @return kafene\HttpAuth $this
      */
-    public function addUser($user, $password = null, $password_as_a1 = false) {
-        $this->users[$user] = $password_as_a1
+    public function addUser($user, $password = null, $password_a1 = false) {
+        $this->users[$user] = $password_a1
             ? $password
             : md5(sprintf('%s:%s:%s', $user, $this->realm, $password));
         return $this;
@@ -182,6 +179,7 @@ class HttpAuthDigest {
                 if($recd == $this->required && count($m[2]) === count($recd)) {
                     return array_combine($m[1], $m[2]);
                 }
+                # @todo - maybe else {} -> log missing elements...
             }
         }
         return $this->prompt();
