@@ -29,9 +29,11 @@ if($auth->authenticate()) {
 This is free and unencumbered software released into the public domain.
 For more information, please refer to <http://unlicense.org/>
 */
+
 class HttpAuthDigest {
     protected $ip = ''; # @var String
     protected $db = null; # @var PDO
+    protected $required = []; # @var array
     protected $users = []; # @var Array
     protected $realm = ''; # @var String
     protected $timeout = 0; # @var Integer
@@ -222,7 +224,7 @@ class HttpAuthDigest {
         }
         return false;
     }
-  
+    
     /**
      * Open the database connection used for logging attempts.
      *
