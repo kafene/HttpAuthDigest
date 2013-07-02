@@ -1,4 +1,4 @@
-# kafene\HttpAuth
+# kafene\HttpAuthDigest
 
 A PHP class for user logins via HTTP Digest Authentication.
 
@@ -12,7 +12,6 @@ number of login attempts, this could be spoofed by a malicious
 user and so instead this tracks attempts independently.
 
 Example usage:
-
 ```php
 $auth = new kafene\HttpAuthDigest;
 $auth->addUser('user', 'pass');
